@@ -12,20 +12,6 @@
 
 #include "philo.h"
 
-static int	meal_limit_reargched(t_philo *philo)
-{
-	int	done;
-
-	done = 0;
-	if (philo->resturant->table.must_eat <= 0)
-		return (0);
-	pthread_mutex_lock(&philo->resturant->meal_mutex);
-	if (philo->full)
-		done = 1;
-	pthread_mutex_unlock(&philo->resturant->meal_mutex);
-	return (done);
-}
-
 static void	lock_forks(t_philo *philo)
 {
 	if (philo->id % 2 == 0)
@@ -88,7 +74,7 @@ void	*philo_routine(void *arg)
 	}
 	while (!sim_stopped(philo->resturant))
 	{
-		if (meal_limit_reargched(philo))
+		if (philo->resturant->table.must_eat > 0 && philo->full)
 			break ;
 		eat_once(philo);
 		print_state(philo, "is sleeping");

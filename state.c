@@ -48,15 +48,22 @@ void	print_state(t_philo *philo, char *msg)
 
 void	smart_sleep(t_resturant *resturant, long ms)
 {
-	long	start;
+	long	end;
 	long	now;
+	long	remaining;
 
-	start = get_ms();
+	end = get_ms() + ms;
 	while (!sim_stopped(resturant))
 	{
 		now = get_ms();
-		if (now - start >= ms)
+		if (now >= end)
 			break ;
-		usleep(200);
+		remaining = end - now;
+		if (remaining > 10)
+			usleep(5000);
+		else if (remaining > 2)
+			usleep(1000);
+		else
+			usleep(200);
 	}
 }
