@@ -16,6 +16,8 @@ static int	cleanup_init(t_resturant *resturant, int destroy_mutexes)
 {
 	if (destroy_mutexes)
 	{
+		pthread_cond_destroy(&resturant->start_cond);
+		pthread_mutex_destroy(&resturant->start_mutex);
 		pthread_mutex_destroy(&resturant->meal_mutex);
 		pthread_mutex_destroy(&resturant->print_mutex);
 		pthread_mutex_destroy(&resturant->stop_mutex);
@@ -36,6 +38,21 @@ static int	init_mutexes(t_resturant *resturant)
 	}
 	if (pthread_mutex_init(&resturant->meal_mutex, NULL) != 0)
 	{
+		pthread_mutex_destroy(&resturant->print_mutex);
+		pthread_mutex_destroy(&resturant->stop_mutex);
+		return (0);
+	}
+	if (pthread_mutex_init(&resturant->start_mutex, NULL) != 0)
+	{
+		pthread_mutex_destroy(&resturant->meal_mutex);
+		pthread_mutex_destroy(&resturant->print_mutex);
+		pthread_mutex_destroy(&resturant->stop_mutex);
+		return (0);
+	}
+	if (pthread_cond_init(&resturant->start_cond, NULL) != 0)
+	{
+		pthread_mutex_destroy(&resturant->start_mutex);
+		pthread_mutex_destroy(&resturant->meal_mutex);
 		pthread_mutex_destroy(&resturant->print_mutex);
 		pthread_mutex_destroy(&resturant->stop_mutex);
 		return (0);
@@ -86,7 +103,6 @@ int	init_resturant(t_resturant *resturant, const t_table *table)
 {
 	memset(resturant, 0, sizeof(t_resturant));
 	resturant->table = *table;
-	resturant->start_time = get_ms();
 	resturant->forks = malloc(sizeof(pthread_mutex_t)
 			* resturant->table.philos);
 	resturant->philos = malloc(sizeof(t_philo) * resturant->table.philos);

@@ -52,6 +52,8 @@ void	destroy_resturant(t_resturant *resturant)
 	pthread_mutex_destroy(&resturant->meal_mutex);
 	pthread_mutex_destroy(&resturant->print_mutex);
 	pthread_mutex_destroy(&resturant->stop_mutex);
+	pthread_cond_destroy(&resturant->start_cond);
+	pthread_mutex_destroy(&resturant->start_mutex);
 	free(resturant->forks);
 	free(resturant->philos);
 }

@@ -29,6 +29,14 @@ void	set_stop(t_resturant *resturant, int value)
 	pthread_mutex_unlock(&resturant->stop_mutex);
 }
 
+void	wait_for_start(t_resturant *resturant)
+{
+	pthread_mutex_lock(&resturant->start_mutex);
+	while (!resturant->start_ready)
+		pthread_cond_wait(&resturant->start_cond, &resturant->start_mutex);
+	pthread_mutex_unlock(&resturant->start_mutex);
+}
+
 void	print_state(t_philo *philo, char *msg)
 {
 	long	time;

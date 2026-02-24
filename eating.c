@@ -64,9 +64,7 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	if (philo->id % 2 == 1 && philo->resturant->table.t_die
-		> philo->resturant->table.t_eat + philo->resturant->table.t_sleep + 300)
-		usleep(philo->resturant->table.t_eat * 500);
+	wait_for_start(philo->resturant);
 	if (philo->resturant->table.philos == 1)
 	{
 		one_philo(philo);
@@ -80,9 +78,6 @@ void	*philo_routine(void *arg)
 		print_state(philo, "is sleeping");
 		smart_sleep(philo->resturant, philo->resturant->table.t_sleep);
 		print_state(philo, "is thinking");
-		if (philo->resturant->table.t_die > philo->resturant->table.t_eat
-			+ philo->resturant->table.t_sleep + 300)
-			usleep(2000);
 	}
 	return (NULL);
 }

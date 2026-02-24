@@ -19,14 +19,18 @@ static int	start_threads(t_resturant *resturant)
 	i = 0;
 	while (i < resturant->table.philos)
 	{
-		if (pthread_create(&resturant->philos[i].thread, NULL,
-				philo_routine, &resturant->philos[i]) != 0)
-		{
-			set_stop(resturant, 1);
-			while (i > 0)
-				pthread_join(resturant->philos[--i].thread, NULL);
-			return (0);
-		}
+			if (pthread_create(&resturant->philos[i].thread, NULL,
+					philo_routine, &resturant->philos[i]) != 0)
+			{
+				set_stop(resturant, 1);
+				pthread_mutex_lock(&resturant->start_mutex);
+				resturant->start_ready = 1;
+				pthread_cond_broadcast(&resturant->start_cond);
+				pthread_mutex_unlock(&resturant->start_mutex);
+				while (i > 0)
+					pthread_join(resturant->philos[--i].thread, NULL);
+				return (0);
+			}
 		i++;
 	}
 	return (1);
@@ -44,21 +48,23 @@ static void	join_threads(t_resturant *resturant)
 	}
 }
 
-static void	sync_last_meal(t_resturant *resturant)
+static void	start_simulation_clock(t_resturant *resturant)
 {
 	int		i;
-	long	now;
 
-	now = get_ms();
+	resturant->start_time = get_ms();
 	pthread_mutex_lock(&resturant->meal_mutex);
 	i = 0;
 	while (i < resturant->table.philos)
 	{
-		if (resturant->philos[i].meals_eaten == 0)
-			resturant->philos[i].last_meal = now;
+		resturant->philos[i].last_meal = resturant->start_time;
 		i++;
 	}
 	pthread_mutex_unlock(&resturant->meal_mutex);
+	pthread_mutex_lock(&resturant->start_mutex);
+	resturant->start_ready = 1;
+	pthread_cond_broadcast(&resturant->start_cond);
+	pthread_mutex_unlock(&resturant->start_mutex);
 }
 
 static int	run_simulation(t_resturant *resturant)
@@ -68,7 +74,7 @@ static int	run_simulation(t_resturant *resturant)
 		destroy_resturant(resturant);
 		return (error_exit(ERR_THREADS));
 	}
-	sync_last_meal(resturant);
+	start_simulation_clock(resturant);
 	if (pthread_create(&resturant->monitor_thread, NULL,
 			monitor_routine, resturant) != 0)
 	{

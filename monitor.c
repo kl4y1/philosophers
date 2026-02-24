@@ -29,27 +29,29 @@ static int	all_ate(t_resturant *resturant)
 static int	get_dead_id(t_resturant *resturant)
 {
 	int		i;
+	int		id;
+	int		full;
+	long	last_meal;
 	long	now;
 
 	now = get_ms();
-	pthread_mutex_lock(&resturant->meal_mutex);
 	i = 0;
 	while (i < resturant->table.philos)
 	{
-		if (resturant->table.must_eat > 0 && resturant->philos[i].full)
+		pthread_mutex_lock(&resturant->meal_mutex);
+		id = resturant->philos[i].id;
+		full = resturant->philos[i].full;
+		last_meal = resturant->philos[i].last_meal;
+		pthread_mutex_unlock(&resturant->meal_mutex);
+		if (resturant->table.must_eat > 0 && full)
 		{
 			i++;
 			continue ;
 		}
-		if (now - resturant->philos[i].last_meal
-			> resturant->table.t_die + (resturant->table.must_eat > 0) * 5)
-		{
-			pthread_mutex_unlock(&resturant->meal_mutex);
-			return (resturant->philos[i].id);
-		}
+		if (now - last_meal > resturant->table.t_die)
+			return (id);
 		i++;
 	}
-	pthread_mutex_unlock(&resturant->meal_mutex);
 	return (0);
 }
 
