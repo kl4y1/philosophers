@@ -6,7 +6,7 @@
 /*   By: mnajem <mnajem@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 00:46:56 by mnajem            #+#    #+#             */
-/*   Updated: 2026/02/24 03:57:20 by mnajem           ###   ########.fr       */
+/*   Updated: 2026/02/25 23:43:41 by mnajem           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,7 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	if (philo->id % 2 == 1 && philo->resturant->table.t_die
-		> philo->resturant->table.t_eat + philo->resturant->table.t_sleep + 300)
+	if (philo->id % 2 == 1)
 		usleep(philo->resturant->table.t_eat * 500);
 	if (philo->resturant->table.philos == 1)
 	{
